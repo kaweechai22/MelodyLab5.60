@@ -331,3 +331,8 @@
 - Removed English text "Wave propagation" from the main graph label and kept only Thai text without parentheses
 - Removed English text "Equilibrium position" from the main graph label and kept only Thai text without parentheses
 - Changed the time-speed parameter label back to English: Phase / Time Speed
+
+## v5.50 Longitudinal Export Name
+- CSV export name now uses the topic name: Longitudinal_Wave_Data.csv
+- PNG export name now uses the topic name: Longitudinal_Wave.png
+- Local export page key changed from Wave_Visualizer to Longitudinal_Wave

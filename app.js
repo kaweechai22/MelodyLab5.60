@@ -353,6 +353,60 @@ function drawLongitudinalAnnotations(ctx, x0, x, yBase){
 }
 
 
+function drawParticleSphere(ctx,x,y,r,scheme="cyan"){
+  ctx.save();
+  ctx.shadowColor = scheme === "red" ? "rgba(255,76,132,.28)" : "rgba(34,211,238,.22)";
+  ctx.shadowBlur = r * 1.2;
+  ctx.shadowOffsetY = r * 0.22;
+
+  const fill = ctx.createRadialGradient(x-r*0.42,y-r*0.48,r*0.18,x,y,r*1.02);
+  if(scheme === "red"){
+    fill.addColorStop(0,"#fff7fb");
+    fill.addColorStop(0.28,"#ffb5cf");
+    fill.addColorStop(0.58,"#ff5b98");
+    fill.addColorStop(0.82,"#e83074");
+    fill.addColorStop(1,"#9f124f");
+  }else{
+    fill.addColorStop(0,"#fbfeff");
+    fill.addColorStop(0.26,"#bff7ff");
+    fill.addColorStop(0.56,"#54d7ff");
+    fill.addColorStop(0.84,"#1697ff");
+    fill.addColorStop(1,"#0b4dbd");
+  }
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fill();
+
+  const gloss = ctx.createRadialGradient(x-r*0.45,y-r*0.52,0,x-r*0.35,y-r*0.42,r*0.72);
+  gloss.addColorStop(0,"rgba(255,255,255,.92)");
+  gloss.addColorStop(0.42,"rgba(255,255,255,.35)");
+  gloss.addColorStop(1,"rgba(255,255,255,0)");
+  ctx.fillStyle = gloss;
+  ctx.beginPath();
+  ctx.arc(x-r*0.18,y-r*0.18,r*0.56,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(255,255,255,.24)";
+  ctx.lineWidth = Math.max(1, r*0.13);
+  ctx.beginPath();
+  ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawParticleShadow(ctx,x,y,r){
+  ctx.save();
+  const shadow = ctx.createRadialGradient(x,y+r*0.9,r*0.1,x,y+r*0.9,r*1.2);
+  shadow.addColorStop(0,"rgba(2,8,23,.32)");
+  shadow.addColorStop(1,"rgba(2,8,23,0)");
+  ctx.fillStyle = shadow;
+  ctx.beginPath();
+  ctx.ellipse(x,y+r*0.95,r*0.95,r*0.35,0,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+}
+
 function drawLongitudinalFinal(ctx, c, p, w, h){
   ctx.clearRect(0,0,w,h);
 
@@ -499,32 +553,16 @@ function drawLongitudinalFinal(ctx, c, p, w, h){
         continue;
       }
 
-      const grd=ctx.createRadialGradient(x-2.5,y-2.5,1,x,y,particleRadius+2);
-      grd.addColorStop(0,"#e8ffff");
-      grd.addColorStop(.42,"#57dcff");
-      grd.addColorStop(.82,"rgba(56,189,248,.96)");
-      grd.addColorStop(1,"rgba(31,111,255,.22)");
-      ctx.fillStyle=grd;
-      ctx.beginPath();
-      ctx.arc(x,y,particleRadius,0,Math.PI*2);
-      ctx.fill();
+      drawParticleShadow(ctx,x,y,particleRadius);
+      drawParticleSphere(ctx,x,y,particleRadius,"cyan");
     }
   }
 
   // Draw the observation particle last so it stays a full red circle with no blue overlap.
   ctx.save();
   const obsRadius = particleRadius + 1.8;
-  const redGrad = ctx.createRadialGradient(obsX-2,obsY-2,1,obsX,obsY,obsRadius);
-  redGrad.addColorStop(0,"#fff5f9");
-  redGrad.addColorStop(.50,"#ff5b98");
-  redGrad.addColorStop(1,"#d61f69");
-  ctx.fillStyle = redGrad;
-  ctx.beginPath();
-  ctx.arc(obsX,obsY,obsRadius,0,Math.PI*2);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,.45)";
-  ctx.lineWidth = 1.4;
-  ctx.stroke();
+  drawParticleShadow(ctx,obsX,obsY,obsRadius);
+  drawParticleSphere(ctx,obsX,obsY,obsRadius,"red");
   ctx.restore();
 
   // No legend dots under x-axis in this final visual.
@@ -782,7 +820,7 @@ function initVisualizer(){
     const c=$("visualizerCanvas");
     const a=document.createElement("a");
     a.href=c.toDataURL("image/png");
-    a.download="PhySound_Wave_Visualizer.png";
+    a.download="MelodyLab_Wave_Visualizer.png";
     a.click();
   };
   if(vizState.raf) cancelAnimationFrame(vizState.raf);
@@ -810,7 +848,21 @@ function getLocalPageSnapshot(){
   const now = new Date().toLocaleString("th-TH");
   const row = {time: now, page};
 
-  // Visualizer values
+  // Visualizer values / current parameter settings
+  if($("vizFreq")) row.parameter_frequency_hz = Number($("vizFreq").value || 0);
+  if($("vizAmp")) row.parameter_amplitude_A = Number($("vizAmp").value || 0);
+  if($("vizSpeed")) row.parameter_wave_speed_m_s = Number($("vizSpeed").value || 0);
+  if($("vizTimeSpeed")) row.parameter_time_speed_x = Number($("vizTimeSpeed").value || 0);
+  if($("vizSubMode")) row.parameter_mode = $("vizSubMode").value || "";
+  if($("vizFreqLabel")) row.frequency_display = $("vizFreqLabel").textContent || "";
+  if($("vizAmpLabel")) row.amplitude_display = $("vizAmpLabel").textContent || "";
+  if($("vizSpeedLabel")) row.wave_speed_display = $("vizSpeedLabel").textContent || "";
+  if($("vizTimeLabel")) row.time_speed_display = $("vizTimeLabel").textContent || "";
+  const freqVal = Number($("vizFreq")?.value || 0);
+  const speedVal = Number($("vizSpeed")?.value || 0);
+  if(freqVal > 0 && speedVal > 0) row.parameter_wavelength_m = +(speedVal / freqVal).toFixed(4);
+
+  // Legacy Visualizer outputs (if present)
   if($("vizFreqOut")) row.frequency = $("vizFreqOut").textContent || "";
   if($("vizAmpOut")) row.amplitude = $("vizAmpOut").textContent || "";
   if($("vizSpeedOut")) row.wave_speed = $("vizSpeedOut").textContent || "";
@@ -894,7 +946,7 @@ function downloadLocalPageCsv(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `PhySound_${String(page).replaceAll(" ","_")}_Data.csv`;
+  a.download = `MelodyLab_${String(page).replaceAll(" ","_")}_Data.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
