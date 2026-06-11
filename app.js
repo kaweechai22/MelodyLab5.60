@@ -1835,14 +1835,14 @@ function initVisualizer(){
       vizState.mode=btn.dataset.viz;
     };
   });
-  ["vizFreq","vizAmp","vizSpeed","vizTimeSpeed","vizPhase","vizPhaseDiff","vizSubMode","vizDistance","vizTemp","vizAngle","vizTempDiff","vizSlit","vizSeparation","vizMach","vizPower","vizIntensity","vizLevel","vizProtection"].forEach(id=>$(id)?.addEventListener("input",()=>{
+  ["vizFreq","vizAmp","vizSpeed","vizTimeSpeed","vizPhase","vizPhaseDiff","vizSubMode","vizDistance","vizTemp","vizAngle","vizTempDiff","vizSlit","vizSeparation","vizTubeMode","vizLength","vizMach","vizPower","vizIntensity","vizLevel","vizSourceLevel","vizProtection","vizAppCategory"].forEach(id=>$(id)?.addEventListener("input",()=>{
     getVizParams();
     if(typeof drawVisualizer === "function") drawVisualizer();
   }));
-  $("vizPlayBtn").onclick=()=>{vizState.running=true;updateVizPlayerButtons("play");};
-  $("vizPauseBtn").onclick=()=>{vizState.running=false;updateVizPlayerButtons("pause");};
-  $("vizResetBtn").onclick=()=>{vizState.t=0;updateVizPlayerButtons("reset");};
-  $("vizExportBtn").onclick=()=>{
+  if($("vizPlayBtn")) $("vizPlayBtn").onclick=()=>{vizState.running=true;updateVizPlayerButtons("play");};
+  if($("vizPauseBtn")) $("vizPauseBtn").onclick=()=>{vizState.running=false;updateVizPlayerButtons("pause");};
+  if($("vizResetBtn")) $("vizResetBtn").onclick=()=>{vizState.t=0;updateVizPlayerButtons("reset");};
+  if($("vizExportBtn")) $("vizExportBtn").onclick=()=>{
     const c=$("visualizerCanvas");
     const a=document.createElement("a");
     a.href=c.toDataURL("image/png");
@@ -1854,7 +1854,7 @@ function initVisualizer(){
   drawVisualizer();
 }
 
-function init(){fillBrowserInfo();initVisualizer();initLocalExportCards();Object.entries(ctxs).forEach(([n,ctx])=>drawGrid(ctx,canvases[n]));drawBeat();drawResonance();renderColumnToggles();readConfig();loadSettings();renderLog();$("startMic").onclick=startMic;$("stopMic").onclick=stopMic;$("captureBtn").onclick=capture;$("downloadBtn").onclick=downloadCsv;$("downloadExcelBtn").onclick=downloadExcel;if($("captureCalBtn"))$("captureCalBtn").onclick=captureCalibration;if($("downloadCalBtn"))$("downloadCalBtn").onclick=downloadCalibrationCsv;if($("applyDbCalBtn"))$("applyDbCalBtn").onclick=applyDbCalibration;if($("playCalTone"))$("playCalTone").onclick=()=>{$("toneFreq").value=440;playTone();};if($("stopCalTone"))$("stopCalTone").onclick=stopTone;$("clearBtn").onclick=()=>{logs=[];renderLog();};$("autoLogBtn").onclick=toggleAutoLog;$("preset").onchange=()=>{applyPreset();};if($("userMode")) $("userMode").onchange=applyMode;$("freezeBtn").onclick=()=>{frozen=!frozen;$("freezeBtn").textContent=frozen?"Unfreeze Graph":"Freeze Graph";};$("resetPeakBtn").onclick=()=>{peakHold=[];};$("saveGraphsBtn").onclick=saveGraphs;$("saveSettingsBtn").onclick=saveSettings;$("resetSettingsBtn").onclick=resetSettings;$("configLinkBtn").onclick=copyConfig;$("playTone").onclick=playTone;$("stopTone").onclick=stopTone;$("playNoise").onclick=playNoise;$("stopNoise").onclick=stopNoise;$("playBeat").onclick=playBeat;$("stopBeat").onclick=stopBeat;["beatF1","beatF2","beatVol"].forEach(id=>$(id).addEventListener("input",()=>{if(beatOsc1)beatOsc1.frequency.value=Number($("beatF1").value||440);if(beatOsc2)beatOsc2.frequency.value=Number($("beatF2").value||444);if(beatGain)beatGain.gain.value=Number($("beatVol").value||.06);drawBeat();}));["resV","resL","resMode"].forEach(id=>$(id).addEventListener("input",drawResonance));["toneFreq","toneVol","toneType"].forEach(id=>$(id).addEventListener("input",()=>{if(toneOsc)toneOsc.frequency.value=Number($("toneFreq").value||440);if(toneGain)toneGain.gain.value=Number($("toneVol").value||.06);if(toneOsc)toneOsc.type=$("toneType").value;}));$("noiseVol").addEventListener("input",()=>{if(noiseGain)noiseGain.gain.value=Number($("noiseVol").value||.03);});if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}}
+function init(){fillBrowserInfo();initVisualizer();initLocalExportCards();if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}if(!$("startMic")) return;Object.entries(ctxs).forEach(([n,ctx])=>drawGrid(ctx,canvases[n]));drawBeat();drawResonance();renderColumnToggles();readConfig();loadSettings();renderLog();$("startMic").onclick=startMic;$("stopMic").onclick=stopMic;$("captureBtn").onclick=capture;$("downloadBtn").onclick=downloadCsv;$("downloadExcelBtn").onclick=downloadExcel;if($("captureCalBtn"))$("captureCalBtn").onclick=captureCalibration;if($("downloadCalBtn"))$("downloadCalBtn").onclick=downloadCalibrationCsv;if($("applyDbCalBtn"))$("applyDbCalBtn").onclick=applyDbCalibration;if($("playCalTone"))$("playCalTone").onclick=()=>{$("toneFreq").value=440;playTone();};if($("stopCalTone"))$("stopCalTone").onclick=stopTone;$("clearBtn").onclick=()=>{logs=[];renderLog();};$("autoLogBtn").onclick=toggleAutoLog;$("preset").onchange=()=>{applyPreset();};if($("userMode")) $("userMode").onchange=applyMode;$("freezeBtn").onclick=()=>{frozen=!frozen;$("freezeBtn").textContent=frozen?"Unfreeze Graph":"Freeze Graph";};$("resetPeakBtn").onclick=()=>{peakHold=[];};$("saveGraphsBtn").onclick=saveGraphs;$("saveSettingsBtn").onclick=saveSettings;$("resetSettingsBtn").onclick=resetSettings;$("configLinkBtn").onclick=copyConfig;$("playTone").onclick=playTone;$("stopTone").onclick=stopTone;$("playNoise").onclick=playNoise;$("stopNoise").onclick=stopNoise;$("playBeat").onclick=playBeat;$("stopBeat").onclick=stopBeat;["beatF1","beatF2","beatVol"].forEach(id=>$(id).addEventListener("input",()=>{if(beatOsc1)beatOsc1.frequency.value=Number($("beatF1").value||440);if(beatOsc2)beatOsc2.frequency.value=Number($("beatF2").value||444);if(beatGain)beatGain.gain.value=Number($("beatVol").value||.06);drawBeat();}));["resV","resL","resMode"].forEach(id=>$(id).addEventListener("input",drawResonance));["toneFreq","toneVol","toneType"].forEach(id=>$(id).addEventListener("input",()=>{if(toneOsc)toneOsc.frequency.value=Number($("toneFreq").value||440);if(toneGain)toneGain.gain.value=Number($("toneVol").value||.06);if(toneOsc)toneOsc.type=$("toneType").value;}));$("noiseVol").addEventListener("input",()=>{if(noiseGain)noiseGain.gain.value=Number($("noiseVol").value||.03);});if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}}
 document.addEventListener("DOMContentLoaded",init);
 
 
@@ -1908,6 +1908,18 @@ function getLocalPageSnapshot(){
   if($("vizSubMode")) row.parameter_mode = $("vizSubMode").value || "";
   if($("vizDistance")) { row.parameter_distance_m = Number($("vizDistance").value || 0); row.parameter_path_length_s_m = Number($("vizDistance").value || 0); }
   if($("vizTemp")) row.parameter_temperature_c = Number($("vizTemp").value || 0);
+  if($("vizAngle")) row.parameter_angle_deg = Number($("vizAngle").value || 0);
+  if($("vizTempDiff")) row.parameter_temperature_difference_c = Number($("vizTempDiff").value || 0);
+  if($("vizSlit")) row.parameter_slit_width_lambda = Number($("vizSlit").value || 0);
+  if($("vizSeparation")) row.parameter_source_separation_m = Number($("vizSeparation").value || 0);
+  if($("vizTubeMode")) row.parameter_tube_mode_n = Number($("vizTubeMode").value || 0);
+  if($("vizLength")) row.parameter_length_m = Number($("vizLength").value || 0);
+  if($("vizMach")) row.parameter_mach_number = Number($("vizMach").value || 0);
+  if($("vizPower")) row.parameter_sound_power_w = Number($("vizPower").value || 0);
+  if($("vizIntensity")) row.parameter_log_intensity = Number($("vizIntensity").value || 0);
+  if($("vizLevel")) row.parameter_sound_level_db = Number($("vizLevel").value || 0);
+  if($("vizSourceLevel")) row.parameter_source_level_db = Number($("vizSourceLevel").value || 0);
+  if($("vizProtection")) row.parameter_protection_db = Number($("vizProtection").value || 0);
   if($("vizFreqLabel")) row.frequency_display = $("vizFreqLabel").textContent || "";
   if($("vizAmpLabel")) row.amplitude_display = $("vizAmpLabel").textContent || "";
   if($("vizSpeedLabel")) row.wave_speed_display = $("vizSpeedLabel").textContent || "";
